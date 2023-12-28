@@ -2,6 +2,8 @@ import pandas as pd
 from datetime import date
 from xlsx2csv import Xlsx2csv
 from loguru import logger
+import os
+import time
 
 def facs_report_prep():
     # File Paths to be used for the file conversion
@@ -11,6 +13,18 @@ def facs_report_prep():
     xlsx_f = f"{xlsx_file_path}/Bad-Debt_Review.xlsx"
     csv_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
     csv_f = f"{csv_file_path}/Bad-Debt_Review.csv"
+    # Get the file stat information
+    file_stat = os.stat(xlsx_file_path)
+    today = date.today()
+    fd_yyyymmdd = today.strftime('%Y%m%d')
+    fd_mmddyyyy = today.strftime('%m/%d/%Y')
+
+    # Access the last modified time
+    last_modified_time = time.strftime('%m/%d/%Y', time.localtime(file_stat.st_mtime)) 
+    if last_modified_time != fd_mmddyyyy:
+        logger.critical('FACS report has not been updated')
+    else:
+        logger.success(f'FACS report for {last_modified_time} to be converted')
 
     # Converts the .xlsx to a .csv for Chunk Processing
     try:
@@ -54,9 +68,6 @@ def facs_report_prep():
     logger.success(f"There are {len(df_main)} statements to be printed")
 
     # determine the file date
-    today = date.today()
-    fd_yyyymmdd = today.strftime('%Y%m%d')
-    fd_mmddyyyy = today.strftime('%m/%d/%Y')
     logger.info(f"File date is {fd_mmddyyyy}")
 
     # Set the outpath and save the .csv with the correct naming convention
