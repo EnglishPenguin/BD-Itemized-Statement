@@ -8,3 +8,8 @@ It also copies the HCX report from the source path to the destination path on th
 3. HCX report is available around 8AM-9AM
 4. Combine process should be completed NLT 1PM
 5. Vender will pick up input files around 1PM
+
+External Required Libraries:
+1. pandas
+2. xlsx2csv
+3. loguru
