@@ -1,26 +1,28 @@
 import pandas as pd
 from datetime import date
 from xlsx2csv import Xlsx2csv
-from loguru import logger
+from logger_setup import logger
 import os
 import time
 
 def facs_report_prep():
     # File Paths to be used for the file conversion
     # select Y or M drive depending on if GOA job has been completed
-    # xlsx_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
-    xlsx_file_path = "Y:/RC Experience/Bad Debt/FACS Open Inventory"
+    xlsx_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
+    # xlsx_file_path = "Y:/RC Experience/Bad Debt/FACS Open Inventory"
     xlsx_f = f"{xlsx_file_path}/Bad-Debt_Review.xlsx"
     csv_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
     csv_f = f"{csv_file_path}/Bad-Debt_Review.csv"
     # Get the file stat information
-    file_stat = os.stat(xlsx_file_path)
+    file_stat = os.stat(xlsx_f)
     today = date.today()
     fd_yyyymmdd = today.strftime('%Y%m%d')
     fd_mmddyyyy = today.strftime('%m/%d/%Y')
 
     # Access the last modified time
     last_modified_time = time.strftime('%m/%d/%Y', time.localtime(file_stat.st_mtime)) 
+    logger.info(f'Current date is: {fd_mmddyyyy}')
+    logger.info(f'FACS Report Last Updated: {last_modified_time}')
     if last_modified_time != fd_mmddyyyy:
         logger.critical('FACS report has not been updated')
     else:
