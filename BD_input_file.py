@@ -1,9 +1,10 @@
 import pandas as pd
-from datetime import date
+from datetime import date, timedelta
 from xlsx2csv import Xlsx2csv
 from logger_setup import logger
 import os
 import time
+from glob import glob
 
 def facs_report_prep():
     # File Paths to be used for the file conversion
@@ -98,3 +99,51 @@ def save_hcx_report():
         exit()
     else:
         logger.success(f'HCX report successfully saved to {out_path}')
+
+def define_duplicates():
+    logger.info('Defining duplicates')
+    shs_inputs = "M:/CPP-Data/Sutherland RPA/BD IS Printing/2024"
+    # from the shs_inputs glob together all .csv files
+    files = glob(shs_inputs + "/*.csv")
+    # from the list of files only pull the last 4 files
+    files = files[-4:]
+    # read each file into a dataframe
+    dfs = [pd.read_csv(file) for file in files]
+    # concatenate all the dataframes into one
+    df = pd.concat(dfs)
+    # keep only the column 'HCENPTACCT'
+    df = df[['HCENPTACCT']]
+    # drop duplicate rows
+    df = df.drop_duplicates()
+    # write the dataframe to a csv file
+    df.to_csv(f'{shs_inputs}/Previous 4 Days.csv', index=False)
+
+def remove_duplicates():
+    define_duplicates()
+    today = date.today()
+    fd_yyyymmdd = today.strftime('%Y%m%d')
+    hcx_file_name = f'{fd_yyyymmdd}_PAANS_BADDEBT_IB_BOT.csv'
+    facs_file_name = f'{fd_yyyymmdd}_BADDEBT_FACS_INBOUND.csv'
+    inputs_file_path = 'M:/CPP-Data/Sutherland RPA/BD IS Printing/'
+    prev_sub_file_path = 'M:/CPP-Data/Sutherland RPA/BD IS Printing/2024/Previous 4 Days.csv'
+
+    df_facs = pd.read_csv(f'{inputs_file_path}/{facs_file_name}')
+    df_hcx = pd.read_csv(f'{inputs_file_path}/{hcx_file_name}')
+    logger.info(f'Total rows in FACS: {len(df_facs)} before removing duplicates')
+    logger.info(f'Total rows in HCX: {len(df_hcx)} before removing duplicates')
+    df_prev_sub = pd.read_csv(prev_sub_file_path)
+
+    logger.info('Identifying duplicates for FACS and HCX')
+    df_facs = identify_duplicates(df_prev_sub, df_facs, 'CLIENT ACCT', 'FACS')
+    df_hcx = identify_duplicates(df_prev_sub, df_hcx, 'HCENPTACCT', 'HCX')
+    logger.info('Duplicates identified and removed')
+    logger.info('Saving files to M:/CPP-Data/Sutherland RPA/BD IS Printing/')
+    df_facs.to_csv(f'{inputs_file_path}/{facs_file_name}', index=False)
+    df_hcx.to_csv(f'{inputs_file_path}/{hcx_file_name}', index=False)
+
+    
+def identify_duplicates(df_prev, df_review, review_column, id):
+    # compare df_review with df_prev, drop duplicates from df_review if they appear in df_prev
+    df_review = df_review[~df_review[review_column].isin(df_prev['HCENPTACCT'])]
+    logger.info(f'Total rows in {id}: {len(df_review)} after removing duplicates')
+    return df_review
