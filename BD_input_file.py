@@ -9,11 +9,11 @@ from glob import glob
 def facs_report_prep():
     # File Paths to be used for the file conversion
     # select Y or M drive depending on if GOA job has been completed
-    xlsx_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
-    # xlsx_file_path = "Y:/RC Experience/Bad Debt/FACS Open Inventory"
-    xlsx_f = f"{xlsx_file_path}/Bad-Debt_Review.xlsx"
-    csv_file_path = "M:/CPP-Data/Sutherland RPA/BD IS Printing/FACS Input"
-    csv_f = f"{csv_file_path}/Bad-Debt_Review.csv"
+    xlsx_file_path = "\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\FACS Input"
+    # xlsx_file_path = "\\NASDATA201\SHAREDATA\MV-RCR01\SHARED\\RC Experience\\Bad Debt\\FACS Open Inventory"
+    xlsx_f = f"{xlsx_file_path}\\Bad-Debt_Review.xlsx"
+    csv_file_path = "\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\FACS Input"
+    csv_f = f"{csv_file_path}\\Bad-Debt_Review.csv"
     # Get the file stat information
     file_stat = os.stat(xlsx_f)
     today = date.today()
@@ -74,9 +74,9 @@ def facs_report_prep():
     logger.info(f"File date is {fd_mmddyyyy}")
 
     # Set the outpath and save the .csv with the correct naming convention
-    out_path = 'M:/CPP-Data/Sutherland RPA/BD IS Printing'
+    out_path = '\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing'
     out_file = f'{fd_yyyymmdd}_BADDEBT_FACS_INBOUND.csv'
-    df_main.to_csv(f'{out_path}/{out_file}', index=False)
+    df_main.to_csv(f'{out_path}\\{out_file}', index=False)
     logger.success(f"{out_file} saved to {out_path}")
 
 def save_hcx_report():
@@ -84,8 +84,8 @@ def save_hcx_report():
     today = date.today()
     fd_yyyymmdd = today.strftime('%Y%m%d')
     file_name = f'{fd_yyyymmdd}_PAANS_BADDEBT_IB_BOT.csv'
-    in_path = f'Y:/RC Experience/DO NOT REMOVE - HCx Ontario Reports/{file_name}'
-    out_path = f'M:/CPP-Data/Sutherland RPA/BD IS Printing/{file_name}'
+    in_path = f'\\\\NASDATA201\\SHAREDATA\\MV-RCR01\\SHARED\\RC Experience\\DO NOT REMOVE - HCx Ontario Reports\\{file_name}'
+    out_path = f'\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\{file_name}'
 
     try:
         with open(in_path, 'r') as source_file:
@@ -102,9 +102,9 @@ def save_hcx_report():
 
 def define_duplicates():
     logger.info('Defining duplicates')
-    shs_inputs = "M:/CPP-Data/Sutherland RPA/BD IS Printing/2024"
+    shs_inputs = "\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\2024"
     # from the shs_inputs glob together all .csv files
-    files = glob(shs_inputs + "/*.csv")
+    files = glob(shs_inputs + "\\*.csv")
     # from the list of files only pull the last 4 files
     files = files[-4:]
     # read each file into a dataframe
@@ -116,7 +116,7 @@ def define_duplicates():
     # drop duplicate rows
     df = df.drop_duplicates()
     # write the dataframe to a csv file
-    df.to_csv(f'{shs_inputs}/Previous 4 Days.csv', index=False)
+    df.to_csv(f'{shs_inputs}\\Previous 4 Days.csv', index=False)
 
 def remove_duplicates():
     define_duplicates()
@@ -124,11 +124,11 @@ def remove_duplicates():
     fd_yyyymmdd = today.strftime('%Y%m%d')
     hcx_file_name = f'{fd_yyyymmdd}_PAANS_BADDEBT_IB_BOT.csv'
     facs_file_name = f'{fd_yyyymmdd}_BADDEBT_FACS_INBOUND.csv'
-    inputs_file_path = 'M:/CPP-Data/Sutherland RPA/BD IS Printing/'
-    prev_sub_file_path = 'M:/CPP-Data/Sutherland RPA/BD IS Printing/2024/Previous 4 Days.csv'
+    inputs_file_path = '\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\'
+    prev_sub_file_path = '\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\2024\\Previous 4 Days.csv'
 
-    df_facs = pd.read_csv(f'{inputs_file_path}/{facs_file_name}')
-    df_hcx = pd.read_csv(f'{inputs_file_path}/{hcx_file_name}')
+    df_facs = pd.read_csv(f'{inputs_file_path}\\{facs_file_name}')
+    df_hcx = pd.read_csv(f'{inputs_file_path}\\{hcx_file_name}')
     logger.info(f'Total rows in FACS: {len(df_facs)} before removing duplicates')
     logger.info(f'Total rows in HCX: {len(df_hcx)} before removing duplicates')
     df_prev_sub = pd.read_csv(prev_sub_file_path)
@@ -137,9 +137,9 @@ def remove_duplicates():
     df_facs = identify_duplicates(df_prev_sub, df_facs, 'CLIENT ACCT', 'FACS')
     df_hcx = identify_duplicates(df_prev_sub, df_hcx, 'HCENPTACCT', 'HCX')
     logger.info('Duplicates identified and removed')
-    logger.info('Saving files to M:/CPP-Data/Sutherland RPA/BD IS Printing/')
-    df_facs.to_csv(f'{inputs_file_path}/{facs_file_name}', index=False)
-    df_hcx.to_csv(f'{inputs_file_path}/{hcx_file_name}', index=False)
+    logger.info('Saving files to \\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\')
+    df_facs.to_csv(f'{inputs_file_path}\\{facs_file_name}', index=False)
+    df_hcx.to_csv(f'{inputs_file_path}\\{hcx_file_name}', index=False)
 
     
 def identify_duplicates(df_prev, df_review, review_column, id):
