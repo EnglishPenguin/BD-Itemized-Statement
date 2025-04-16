@@ -102,7 +102,9 @@ def save_hcx_report():
 
 def define_duplicates():
     logger.info('Defining duplicates')
-    shs_inputs = "\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\2024"
+    date = date.today()
+    year = date.strftime('%Y')
+    shs_inputs = f"\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\{year}"
     # from the shs_inputs glob together all .csv files
     files = glob(shs_inputs + "\\*.csv")
     # from the list of files only pull the last 4 files
@@ -122,10 +124,11 @@ def remove_duplicates():
     define_duplicates()
     today = date.today()
     fd_yyyymmdd = today.strftime('%Y%m%d')
+    year = today.strftime('%Y')
     hcx_file_name = f'{fd_yyyymmdd}_PAANS_BADDEBT_IB_BOT.csv'
     facs_file_name = f'{fd_yyyymmdd}_BADDEBT_FACS_INBOUND.csv'
     inputs_file_path = '\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\'
-    prev_sub_file_path = '\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\2024\\Previous 4 Days.csv'
+    prev_sub_file_path = f'\\\\NT2KWB972SRV03\\SHAREDATA\\CPP-Data\\Sutherland RPA\\BD IS Printing\\{year}\\Previous 4 Days.csv'
 
     df_facs = pd.read_csv(f'{inputs_file_path}\\{facs_file_name}')
     df_hcx = pd.read_csv(f'{inputs_file_path}\\{hcx_file_name}')
