@@ -13,3 +13,4 @@ if __name__ == '__main__':
         status.update_status('Completed')
     except Exception as e:
         status.update_status('Failed', errors=str(e))
+        # print(e)
